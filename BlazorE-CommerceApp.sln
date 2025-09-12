@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8 d17.14
+VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorE-CommerceApp", "BlazorE-CommerceApp\BlazorE-CommerceApp.csproj", "{CAA7F2F4-F8FB-4F2A-91FE-4EE0318CC42D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorE_CommerceApp", "BlazorE-CommerceApp\BlazorE_CommerceApp.csproj", "{CAA7F2F4-F8FB-4F2A-91FE-4EE0318CC42D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
