@@ -30,11 +30,20 @@ namespace BlazorE_CommerceApp.Services
             return await response.Content.ReadFromJsonAsync<CategoryDto>();
         }
 
+
         public async Task<CategoryDto> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto)
         {
             var response = await _http.PutAsJsonAsync($"api/Category/{updateCategoryDto.CategoryId}", updateCategoryDto);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<CategoryDto>();
+            try
+            {
+                return await response.Content.ReadFromJsonAsync<CategoryDto>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return null;
         }
 
         public async Task<bool> DeleteCategoryAsync(int id)

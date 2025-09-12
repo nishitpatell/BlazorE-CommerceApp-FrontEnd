@@ -1,0 +1,80 @@
+﻿@page "/category/create"
+
+@using BlazorE_CommerceApp.Dtos.CategoryDtos
+
+@inject ICategoryService _categoryService
+@inject NavigationManager _navigationManager
+
+@if (IsProcessing)
+{
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <img src="/images/loading.gif" alt="loading..." />
+    </div>
+}
+else
+{
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-black bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">Create Category</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <EditForm Model="createCategoryDto" FormName="createCategoryForm" OnValidSubmit="AddNewCategory">
+                <DataAnnotationsValidator/>
+
+                <div class="border p-3 mt-4">
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="createCategoryDto.CategoryName" class="form-control" id="Name" placeholder="Name"></InputText>
+                        <label for="Name">Name</label>
+                        <ValidationMessage For="@(() => createCategoryDto.CategoryName)"></ValidationMessage>
+                    </div>
+                
+                    <div class="row mt-3">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-primary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-floppy2"></i> Add
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="category" class="btn btn-secondary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-arrow-bar-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private CreateCategoryDto createCategoryDto { get; set; } = new CreateCategoryDto();
+    private bool IsProcessing { get; set; } = true;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCategory();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadCategory()
+    {
+        await Task.Delay(300);
+    }
+
+    private async Task AddNewCategory()
+    {
+        IsProcessing = true;
+        await _categoryService.CreateCategoryAsync(createCategoryDto);
+        IsProcessing = false;
+        _navigationManager.NavigateTo("category");
+    }
+}

@@ -1,0 +1,91 @@
+﻿@page "/category/update/{id:int}"
+
+@using BlazorE_CommerceApp.Dtos.CategoryDtos
+
+@inject ICategoryService _categoryService
+@inject NavigationManager _navigationManager
+
+@if (IsProcessing)
+{
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <img src="/images/loading.gif" alt="loading..." />
+    </div>
+}
+else
+{
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-black bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">Create Category</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <EditForm Model="updateCategoryDto" FormName="updateCategoryForm" OnValidSubmit="EditCategory">
+                <DataAnnotationsValidator />
+
+                <div class="border p-3 mt-4">
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="updateCategoryDto.CategoryName" class="form-control" id="Name" placeholder="Name"></InputText>
+                        <label for="Name">Name</label>
+                        <ValidationMessage For="@(() => updateCategoryDto.CategoryName)"></ValidationMessage>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-primary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-floppy2"></i> Update
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="category" class="btn btn-secondary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-arrow-bar-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    [SupplyParameterFromForm(FormName = "updateCategoryForm")]
+    private UpdateCategoryDto updateCategoryDto { get; set; } = new UpdateCategoryDto();
+    private bool IsProcessing { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCategory();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadCategory()
+    {
+        if(Id > 0)
+        {
+            var categoryDto = await _categoryService.GetCategoryByIdAsync(Id);
+            updateCategoryDto.CategoryId = categoryDto.CategoryId;
+            updateCategoryDto.CategoryName = categoryDto.CategoryName;
+        }
+    }
+
+    private async Task EditCategory()
+    {
+        IsProcessing = true;
+        if(updateCategoryDto.CategoryId > 0)
+        {
+            await _categoryService.UpdateCategoryAsync(updateCategoryDto);
+            IsProcessing = false;
+        }
+        _navigationManager.NavigateTo("category");
+    }
+}
