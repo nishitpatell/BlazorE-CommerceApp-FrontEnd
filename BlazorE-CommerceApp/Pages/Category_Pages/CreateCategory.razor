@@ -4,6 +4,7 @@
 
 @inject ICategoryService _categoryService
 @inject NavigationManager _navigationManager
+@inject IJSRuntime _JSRuntime
 
 @if (IsProcessing)
 {
@@ -74,6 +75,7 @@ else
     {
         IsProcessing = true;
         await _categoryService.CreateCategoryAsync(createCategoryDto);
+        await _JSRuntime.ToastrSuccess("Category Created Successfully!");
         IsProcessing = false;
         _navigationManager.NavigateTo("category");
     }
