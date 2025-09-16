@@ -1,4 +1,6 @@
-﻿namespace BlazorE_CommerceApp.Dtos.ProductDtos
+﻿using BlazorE_CommerceApp.Dtos.CategoryDtos;
+
+namespace BlazorE_CommerceApp.Dtos.ProductDtos
 {
     public class ProductDto
     {
@@ -13,7 +15,7 @@
         public string? SpecialTag { get; set; }
 
         public int CategoryId { get; set; }
-
+        public CategoryDto Category { get; set; }
         public string? ProductImageUrl { get; set; }
     }
 }
