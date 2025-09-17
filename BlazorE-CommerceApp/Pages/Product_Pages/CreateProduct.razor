@@ -1,0 +1,121 @@
+﻿@page "/product/create"
+
+@using BlazorE_CommerceApp.Dtos.ProductDtos
+@using BlazorE_CommerceApp.Dtos.CategoryDtos
+
+@inject ICategoryService _categoryService
+@inject IProductService _productService
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _JSRuntime
+
+@if (IsProcessing)
+{
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <img src="/images/loading.gif" alt="loading..." />
+    </div>
+}
+else
+{
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-black bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">Create Product</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <EditForm Model="createProductDto" FormName="createProductForm" OnValidSubmit="AddNewProduct">
+                <DataAnnotationsValidator/>
+
+                <div class="border p-3 mt-4">
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="createProductDto.ProductName" class="form-control" id="ProductName" placeholder="ProductName"></InputText>
+                        <label for="ProductName">Name</label>
+                        <ValidationMessage For="@(() => createProductDto.ProductName)"></ValidationMessage>
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="createProductDto.ProductDescription" class="form-control" id="ProductDescription" placeholder="Description"></InputText>
+                        <label for="ProductDescription">Description</label>
+                        <ValidationMessage For="@(() => createProductDto.ProductDescription)"></ValidationMessage>
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputNumber @bind-Value="createProductDto.ProductPrice" class="form-control" id="ProductPrice" placeholder="Price"></InputNumber>
+                        <label for="ProductPrice">Price</label>
+                        <ValidationMessage For="@(() => createProductDto.ProductPrice)"></ValidationMessage>
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputSelect @bind-Value="createProductDto.CategoryId" class="form-select" id="category" placeholder="ProductCategory">
+                            <option value="0" disabled selected>--Select Category--</option>
+                            @foreach (var category in _categories)
+                            {
+                                <option value="@category.CategoryId">@category.CategoryName</option>
+                            }
+                        </InputSelect>
+                        
+                        <label for="category">Category</label>
+                        <ValidationMessage For="@(() => createProductDto.ProductPrice)"></ValidationMessage>
+                    </div>
+                    <div class="form-floating py-3 col-12">
+                        <InputFile OnChange="LoadFiles" class="form-control" id="customFile" accept="image/x-png,image/jpeg"></InputFile>
+                        <label for="customFile">Upload Image</label>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-primary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-floppy2"></i> Add
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="product" class="btn btn-secondary form-control" disabled="@IsProcessing">
+                                <i class="bi bi-arrow-bar-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private CreateProductDto createProductDto { get; set; } = new CreateProductDto();
+    private bool IsProcessing { get; set; } = true;
+
+    private IEnumerable<CategoryDto> _categories = new List<CategoryDto>();
+
+    private string? _directoryPath { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadProductAndCategoryList();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadProductAndCategoryList()
+    {
+        await Task.Delay(300);
+        _categories = await _categoryService.GetAllCategoriesAsync();
+    }
+
+    private async Task AddNewProduct()
+    {
+        IsProcessing = true;
+        await _productService.CreateProductAsync(createProductDto);
+        await _JSRuntime.ToastrSuccess("Product Created Successfully!");
+        IsProcessing = false;
+        _navigationManager.NavigateTo("product");
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+
+    }
+}

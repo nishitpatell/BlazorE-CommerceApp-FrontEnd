@@ -15,6 +15,7 @@ builder.Services.AddHttpClient("ApiClient", client =>
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"));
 builder.Services.AddScoped<ICategoryService,CategoryService>();
+builder.Services.AddScoped<IProductService,ProductService>();
 
 builder.Services.AddOidcAuthentication(options =>
 {
