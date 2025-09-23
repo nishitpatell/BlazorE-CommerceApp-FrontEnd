@@ -1,7 +1,10 @@
 ﻿using BlazorE_CommerceApp.Dtos.CategoryDtos;
 using BlazorE_CommerceApp.Dtos.ProductDtos;
 using BlazorE_CommerceApp.Services.IServices;
+using Microsoft.AspNetCore.Components.Forms;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace BlazorE_CommerceApp.Services
 {
@@ -49,6 +52,35 @@ namespace BlazorE_CommerceApp.Services
         {
             var response = await _http.DeleteAsync($"api/Produuct/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<(bool IsSuccess, string ImageUrl, string ErrorMessage)> UploadProductImageAsync(int productId, IBrowserFile file)
+        {
+            try
+            {
+                var content = new MultipartFormDataContent();
+                var fileStream = file.OpenReadStream(5 * 1024 * 1024);
+
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(fileContent, "File", file.Name);
+
+                var response = await _http.PostAsync($"api/product/{productId}/image", content);
+
+                if(response.IsSuccessStatusCode)
+                {
+                    string imageUrl = await response.Content.ReadAsStringAsync();
+                    return (true, imageUrl, null);
+                }
+
+                var error = await response.Content.ReadAsStringAsync();
+                return(false, null, error);
+            }
+            catch(Exception ex) 
+            {
+                return (false, null, ex.Message); 
+            }
         }
     }
 }
