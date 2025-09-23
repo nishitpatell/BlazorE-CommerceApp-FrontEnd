@@ -60,11 +60,18 @@ else
                         <label for="category">Category</label>
                         <ValidationMessage For="@(() => updateProductDto.CategoryId)"></ValidationMessage>
                     </div>
+
                     <div class="form-floating py-3 col-12">
-                        <InputFile OnChange="LoadFiles" class="form-control" id="customFile" accept="image/x-png,image/jpeg"></InputFile>
+                        <InputFile OnChange="OnFileSelected" class="form-control" id="customFile" accept="image/x-png,image/jpeg"></InputFile>
                         <label for="customFile">Upload Image</label>
                     </div>
+                    <!-- Preview uploaded image -->
+                    @if (!string.IsNullOrEmpty(UploadedImageUrl))
+                    {
+                        <img src="@UploadedImageUrl" alt="@updateProductDto.ProductName" width="200" />
+                    }
 
+                    <img src="" />
                     <div class="row mt-3">
                         <div class="col-6 col-md-3">
                             <button type="submit" class="btn btn-primary form-control" disabled="@IsProcessing">
@@ -84,68 +91,4 @@ else
 }
 
 
-@code {
-    [Parameter]
-    public int Id { get; set; }
-    [SupplyParameterFromForm(FormName = "updateProductForm")]
-    private UpdateProductDto updateProductDto { get; set; } = new UpdateProductDto();
-    private bool IsProcessing { get; set; } = true;
 
-    private IEnumerable<CategoryDto> _categories = new List<CategoryDto>();
-
-    private string? _directoryPath { get; set; }
-
-    protected override Task OnInitializedAsync()
-    {
-        _directoryPath = Path.Combine();
-        return base.OnInitializedAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await LoadProductAndCategoryList();
-            IsProcessing = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task LoadProductAndCategoryList()
-    {
-        if(Id > 0)
-        {
-            var productDto = await _productService.GetProductByIdAsync(Id);
-            _categories = await _categoryService.GetAllCategoriesAsync();
-            updateProductDto.ProductId = productDto.ProductId;
-            updateProductDto.ProductName = productDto.ProductName;
-            updateProductDto.ProductDescription = productDto.ProductDescription;
-            updateProductDto.CategoryId = productDto.CategoryId;
-            updateProductDto.ProductPrice = productDto.ProductPrice;
-        }
-    }
-
-    private async Task EditProduct()
-    {
-        IsProcessing = true;
-        if(updateProductDto.ProductId > 0)
-        {
-            await _productService.UpdateProductAsync(updateProductDto);
-            await _JSRuntime.ToastrSuccess("Product Updated Successfully!");
-
-            IsProcessing = false;
-        }
-        _navigationManager.NavigateTo("product");
-    }
-
-    private async Task LoadFiles(InputFileChangeEventArgs e)
-    {
-        IsProcessing = true;
-        var file = e.File;
-        FileInfo fileInfo = new(file.Name);
-        var newFileName = $"{Guid.NewGuid}.{fileInfo.Extension}"; 
-
-
-        IsProcessing = false;
-    }
-}
